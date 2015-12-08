@@ -4,19 +4,32 @@ var MbedConnector = require('../index');
 require('dotenv').load({silent: true});
 
 var mbedConnector;
-var url = process.env.HOST;
-var token = process.env.ACCESS_KEY
+var host = process.env.HOST;
+var accessKey = process.env.ACCESS_KEY
 
 
 before(function() {
-  mbedConnector = new MbedConnector(url, { token: token });
+  var options = {
+    accessKey: accessKey
+  };
+
+  if (host) {
+    options.host = host;
+  }
+
+  mbedConnector = new MbedConnector(options);
 });
 
 describe('General', function() {
   describe('#MbedConnector', function() {
     it('should set the appropriate variables in the constructor', function() {
-      assert.strictEqual(mbedConnector.host, url);
-      assert.strictEqual(mbedConnector.credentials.token, token);
+      if (host) {
+        assert.strictEqual(mbedConnector.options.host, host);
+      } else {
+        assert.strictEqual(mbedConnector.options.host, "https://api.connector.mbed.com");
+      }
+
+      assert.strictEqual(mbedConnector.options.accessKey, accessKey);
     });
   });
 })
@@ -178,10 +191,6 @@ describe('Handle-Notifications', function() {
         done(error);
       });
 
-      mbedConnector.on('async-responses', function(asyncResponses) {
-        assert.deepStrictEqual(asyncResponses, expected)
-        done();
-      });
 
       mbedConnector.handleNotifications(payload);
     });

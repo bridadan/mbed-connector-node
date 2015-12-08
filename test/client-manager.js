@@ -14,6 +14,16 @@ ClientManager.prototype.startClient = function(callback) {
       _this.setCurrentStart(callback);
     }
     _this.childProcess = child_process.spawn(_this.clientPath);
+
+    console.log('ChildProcess PID: ' + _this.childProcess.pid);
+
+    _this.childProcess.stdout.on('data', function(data) {
+      console.log('stdout: ' + data.toString());
+    });
+
+    _this.childProcess.on('close', function(code) {
+      console.log('mbed Client exited with code: ' + code);
+    });
   });
 }
 
